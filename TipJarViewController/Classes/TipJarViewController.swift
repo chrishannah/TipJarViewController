@@ -157,9 +157,7 @@ open class TipJarViewController<T>: BaseTableViewController, UITableViewDelegate
                     }
                 }
                 
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
+                self.reloadTableView()
             }
             task.resume()
         }
@@ -181,6 +179,12 @@ open class TipJarViewController<T>: BaseTableViewController, UITableViewDelegate
         
         SKPaymentQueue.default().add(self)
     }
+
+    private func reloadTableView() {
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+    }
     
     func addPaymentForIAP(row: IAPRow) {
         guard !loading else {
@@ -188,7 +192,7 @@ open class TipJarViewController<T>: BaseTableViewController, UITableViewDelegate
         }
 
         loading = true
-        tableView.reloadData()
+        reloadTableView()
 
         guard let products = products,
             let product = products[row.productIdentifier] else {
@@ -412,14 +416,14 @@ open class TipJarViewController<T>: BaseTableViewController, UITableViewDelegate
         }
         
         loading = false
-        tableView.reloadData()
+        reloadTableView()
     }
 
     // MARK: - SKPaymentTransactionObserver
     public func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
         loading = false
         print(Date())
-        tableView.reloadData()
+        reloadTableView()
         
         for transaction in transactions {
             switch transaction.transactionState {
@@ -428,7 +432,7 @@ open class TipJarViewController<T>: BaseTableViewController, UITableViewDelegate
                 
                 queue.finishTransaction(transaction)
                 
-                tableView.reloadData()
+                reloadTableView()
                 
             case .deferred:
                 queue.finishTransaction(transaction)
